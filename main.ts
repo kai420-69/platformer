@@ -1,6 +1,28 @@
 namespace SpriteKind {
     export const Door = SpriteKind.create()
 }
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    controller.moveSprite(mySprite, 0, 0)
+    dodge = true
+    mySprite.setImage(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . f 
+        . . . . . . . . . . . . . . . f 
+        . f . . . . . f f f f f f . . f 
+        . f . . . f f f 1 1 1 1 f f . f 
+        . f . . f f 1 1 1 1 1 1 1 f . f 
+        . f . f f 1 1 f f 1 f f 1 f . f 
+        . f . f 1 1 1 f f 1 f f 1 f f f 
+        . f f f 1 1 1 1 1 1 1 1 1 f f . 
+        . . . f 1 1 1 1 1 1 1 1 1 f . . 
+        . 1 . f 1 1 1 f f f 1 1 f f . . 
+        1 1 . f f 1 1 1 1 1 f f f . . . 
+        . 1 . . f f f f f f f . . . . . 
+        1 1 1 . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `)
+})
 function chooseLevel () {
     if (level == 0) {
         scene.setTileMap(list[level])
@@ -151,6 +173,35 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Door, function (sprite, otherSpr
         }
     }
 })
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Projectile, function (sprite, otherSprite) {
+    info.changeLifeBy(-1)
+    pause(1000)
+})
+info.onLifeZero(function () {
+    game.over(false)
+})
+controller.B.onEvent(ControllerButtonEvent.Released, function () {
+    controller.moveSprite(mySprite, 100, 0)
+    dodge = false
+    mySprite.setImage(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . f f f f f . . . . 
+        . . . . . . f f f 1 1 1 f . . . 
+        . . . . . f f 1 1 1 1 1 1 f . . 
+        . . . . . f 1 1 f f 1 f f 1 f . 
+        . . . . f 1 1 1 f f 1 f f 1 f . 
+        . . . . f 1 1 1 1 1 1 1 1 1 f . 
+        . . . . f 1 1 1 1 1 1 1 1 1 f . 
+        . . . . f 1 1 1 f f f f 1 f . . 
+        . . . . f 1 1 1 1 1 1 1 1 f . . 
+        . . . . f f 1 1 1 1 1 1 f . . . 
+        . . . . . f f f f f f f . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `)
+})
 function delete0ldLevel () {
     for (let value of sprites.allOfKind(SpriteKind.Door)) {
         value.destroy()
@@ -159,8 +210,10 @@ function delete0ldLevel () {
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     otherSprite.destroy()
 })
+let projectile: Sprite = null
 let mySprite2: Sprite = null
 let portal: Sprite = null
+let dodge = false
 let level = 0
 let list: Image[] = []
 let mySprite: Sprite = null
@@ -235,3 +288,24 @@ list = [img`
     `]
 level = 0
 chooseLevel()
+info.setLife(5)
+game.onUpdateInterval(500, function () {
+    projectile = sprites.createProjectileFromSide(img`
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . d d d d d d d . . . . . 
+        . . . . d f f f f d d . . . . . 
+        . . . . d f f f f f d . . . . . 
+        . . . . d f f f f f d . . . . . 
+        . . . . d f f f f f d . . . . . 
+        . . . . d f f f f d d . . . . . 
+        . . . . d f f f d d . . . . . . 
+        . . . . d d f d d . . . . . . . 
+        . . . . . d d d . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        . . . . . . . . . . . . . . . . 
+        `, randint(-100, 100), 100)
+})
